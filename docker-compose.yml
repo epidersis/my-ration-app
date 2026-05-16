@@ -1,0 +1,15 @@
+services:
+  my-ration:
+    build: .
+    ports:
+      - "8550:8550"
+    environment:
+      APP_ENV: production
+      APP_DB_PATH: /data/my_ration.sqlite3
+    volumes:
+      - my-ration-data:/data
+    restart: unless-stopped
+
+volumes:
+  my-ration-data:
+
