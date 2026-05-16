@@ -23,7 +23,7 @@ def build_stats_page(app) -> ft.Control:
     )
     content = ft.Column(spacing=12)
 
-    def refresh(_: ft.ControlEvent | None = None) -> None:
+    def refresh(_: ft.ControlEvent | None = None, update_page: bool = True) -> None:
         dishes = app.stats.get_period_dishes(app.current_user.id, period.value or "day")
         summary = app.stats.summarize(dishes)
         if not dishes:
@@ -95,9 +95,9 @@ def build_stats_page(app) -> ft.Control:
                     ),
                 ),
             ]
-        if content.page:
+        if update_page:
             app.page.update()
 
-    period.on_change = refresh
-    refresh()
+    period.on_select = refresh
+    refresh(update_page=False)
     return ft.Column([period, content], spacing=16)

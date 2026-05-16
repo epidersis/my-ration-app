@@ -9,7 +9,7 @@ from app.ui.components.forms import empty_state
 def build_ingredients_page(app) -> ft.Control:
     content = ft.Column(spacing=10)
 
-    def refresh() -> None:
+    def refresh(update_page: bool = True) -> None:
         ingredients = app.ingredients.list_for_user(app.current_user.id)
         rows: list[ft.Control] = []
         if not ingredients:
@@ -17,14 +17,14 @@ def build_ingredients_page(app) -> ft.Control:
         for ingredient in ingredients:
             rows.append(_ingredient_row(app, ingredient, refresh))
         content.controls = rows
-        if content.page:
+        if update_page:
             app.page.update()
 
     add_button = ft.ElevatedButton(
         "Добавить ингредиент",
         on_click=lambda _: _open_ingredient_dialog(app, None, refresh),
     )
-    refresh()
+    refresh(update_page=False)
     return ft.Column([add_button, content], spacing=16)
 
 
@@ -68,8 +68,7 @@ def _open_ingredient_dialog(app, ingredient: Ingredient | None, refresh) -> None
     error = ft.Text(color=ft.Colors.RED_700)
 
     def close() -> None:
-        dialog.open = False
-        app.page.update()
+        app.page.pop_dialog()
 
     def save(_: ft.ControlEvent) -> None:
         try:
@@ -102,9 +101,7 @@ def _open_ingredient_dialog(app, ingredient: Ingredient | None, refresh) -> None
             ft.ElevatedButton("Сохранить", on_click=save),
         ],
     )
-    app.page.dialog = dialog
-    dialog.open = True
-    app.page.update()
+    app.page.show_dialog(dialog)
 
 
 def _delete_ingredient(app, ingredient: Ingredient, refresh) -> None:

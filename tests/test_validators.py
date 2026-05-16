@@ -18,6 +18,12 @@ def test_calories_must_be_positive() -> None:
         validate_calories_per_100g(0)
 
 
+@pytest.mark.parametrize("value", ["nan", "inf", "-inf"])
+def test_calories_must_be_finite(value: str) -> None:
+    with pytest.raises(ValueError, match="Калорийность должна быть больше 0"):
+        validate_calories_per_100g(value)
+
+
 def test_weight_must_be_positive() -> None:
     with pytest.raises(ValueError, match="Вес должен быть больше 0"):
         validate_weight(-10)

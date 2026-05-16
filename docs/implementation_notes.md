@@ -11,7 +11,7 @@
 - Статистика за день, неделю, месяц, год и весь период с группировкой калорий по дням.
 - Минимальные pytest-тесты для расчёта калорий, рекомендаций и валидаторов.
 - Dockerfile, docker-compose.yml и .dockerignore для запуска Flet как web-приложения на `http://localhost:8550`.
-- `flet-cli` добавлен как явная зависимость, чтобы Docker-контейнер не пытался доустановить CLI при старте под непривилегированным пользователем.
+- Пакеты Flet закреплены одной версией, включая `flet-cli`, `flet-web` и `flet-desktop`, чтобы Docker-контейнер не доустанавливал runtime-зависимости при старте.
 
 ## Как устранены противоречия
 
@@ -45,7 +45,7 @@
 python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
-flet run app/main.py
+flet run -m app.main
 ```
 
 Linux/macOS:
@@ -54,7 +54,7 @@ Linux/macOS:
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-flet run app/main.py
+flet run -m app.main
 ```
 
 Тесты:

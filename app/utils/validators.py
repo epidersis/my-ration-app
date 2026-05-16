@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import math
+
 
 def validate_required(value: str, message: str) -> None:
     if not value or not value.strip():
@@ -11,7 +13,7 @@ def parse_positive_float(value: str | float | int, message: str) -> float:
         parsed = float(str(value).replace(",", "."))
     except (TypeError, ValueError) as exc:
         raise ValueError(message) from exc
-    if parsed <= 0:
+    if not math.isfinite(parsed) or parsed <= 0:
         raise ValueError(message)
     return parsed
 

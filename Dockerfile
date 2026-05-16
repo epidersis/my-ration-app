@@ -29,4 +29,4 @@ USER appuser
 
 EXPOSE 8550
 
-CMD ["flet", "run", "--web", "--host", "0.0.0.0", "--port", "8550", "app/main.py"]
+CMD ["flet", "run", "--web", "--host", "0.0.0.0", "--port", "8550", "-m", "app.main"]

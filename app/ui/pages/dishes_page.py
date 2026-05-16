@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import math
+
 import flet as ft
 
 from app.db.models import Dish
@@ -10,7 +12,7 @@ from app.ui.components.forms import empty_state
 def build_dishes_page(app) -> ft.Control:
     content = ft.Column(spacing=10)
 
-    def refresh() -> None:
+    def refresh(update_page: bool = True) -> None:
         dishes = app.dishes.list_for_user(app.current_user.id)
         rows: list[ft.Control] = []
         if not dishes:
@@ -18,14 +20,14 @@ def build_dishes_page(app) -> ft.Control:
         for dish in dishes:
             rows.append(_dish_row(app, dish, refresh))
         content.controls = rows
-        if content.page:
+        if update_page:
             app.page.update()
 
     add_button = ft.ElevatedButton(
         "Создать блюдо",
         on_click=lambda _: _open_dish_dialog(app, refresh),
     )
-    refresh()
+    refresh(update_page=False)
     return ft.Column([add_button, content], spacing=16)
 
 
@@ -72,8 +74,7 @@ def _open_dish_dialog(app, refresh) -> None:
     row_state: list[dict[str, ft.Control]] = []
 
     def close() -> None:
-        dialog.open = False
-        app.page.update()
+        app.page.pop_dialog()
 
     def recalc(_: ft.ControlEvent | None = None) -> None:
         total = 0.0
@@ -89,12 +90,12 @@ def _open_dish_dialog(app, refresh) -> None:
                 weight = float(str(weight_value).replace(",", "."))
             except ValueError:
                 continue
-            if weight > 0:
+            if math.isfinite(weight) and weight > 0:
                 total += calories_for_ingredient(ingredient.calories_per_100g, weight)
         total_text.value = f"Итого: {total:.1f} ккал"
         app.page.update()
 
-    def rebuild_rows() -> None:
+    def rebuild_rows(update_page: bool = True) -> None:
         rows.controls = [
             ft.Row(
                 [
@@ -110,15 +111,15 @@ def _open_dish_dialog(app, refresh) -> None:
             )
             for state in row_state
         ]
-        if rows.page:
+        if update_page:
             app.page.update()
 
-    def add_row(_: ft.ControlEvent | None = None) -> None:
+    def add_row(_: ft.ControlEvent | None = None, update_page: bool = True) -> None:
         dropdown = ft.Dropdown(
             label="Ингредиент",
             options=[ft.dropdown.Option(str(item.id), item.name) for item in ingredients],
             width=280,
-            on_change=recalc,
+            on_select=recalc,
         )
         weight = ft.TextField(
             label="Вес, г",
@@ -127,7 +128,7 @@ def _open_dish_dialog(app, refresh) -> None:
             on_change=recalc,
         )
         row_state.append({"ingredient": dropdown, "weight": weight})
-        rebuild_rows()
+        rebuild_rows(update_page=update_page)
 
     def remove_row(state: dict[str, ft.Control]) -> None:
         if len(row_state) > 1:
@@ -188,10 +189,8 @@ def _open_dish_dialog(app, refresh) -> None:
             ft.ElevatedButton("Сохранить", on_click=save),
         ],
     )
-    add_row()
-    app.page.dialog = dialog
-    dialog.open = True
-    app.page.update()
+    add_row(update_page=False)
+    app.page.show_dialog(dialog)
 
 
 def _delete_dish(app, dish: Dish, refresh) -> None:

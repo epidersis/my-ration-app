@@ -32,44 +32,50 @@ class RationApp:
         page.bgcolor = ft.Colors.GREY_100
         page.on_route_change = self.route_change
         page.on_view_pop = self.view_pop
-        page.go("/")
+        self.route_change(None)
 
     def show_message(self, message: str) -> None:
         show_message(self.page, message)
 
+    def navigate(self, route: str) -> None:
+        self.page.run_task(self.page.push_route, route)
+
     def logout(self) -> None:
         self.current_user = None
-        self.page.go("/")
+        self.navigate("/")
 
     def require_user(self) -> bool:
         if self.current_user is None:
-            self.page.go("/")
+            self.navigate("/")
             return False
         return True
 
-    def route_change(self, _: ft.RouteChangeEvent) -> None:
-        route = self.page.route
+    def route_change(self, _: ft.RouteChangeEvent | None) -> None:
+        route = self.page.route or "/"
         self.page.views.clear()
 
         if route == "/register":
-            self.page.views.append(ft.View(route, [build_register_page(self)]))
+            self.page.views.append(ft.View([build_register_page(self)], route=route))
         elif route == "/dashboard" and self.require_user():
-            self.page.views.append(ft.View(route, [self.shell("Главная", build_dashboard_page(self))]))
+            self.page.views.append(ft.View([self.shell("Главная", build_dashboard_page(self))], route=route))
         elif route == "/ingredients" and self.require_user():
             self.page.views.append(
-                ft.View(route, [self.shell("Ингредиенты", build_ingredients_page(self))])
+                ft.View([self.shell("Ингредиенты", build_ingredients_page(self))], route=route)
             )
         elif route == "/dishes" and self.require_user():
-            self.page.views.append(ft.View(route, [self.shell("Блюда", build_dishes_page(self))]))
+            self.page.views.append(ft.View([self.shell("Блюда", build_dishes_page(self))], route=route))
         elif route == "/stats" and self.require_user():
-            self.page.views.append(ft.View(route, [self.shell("Статистика", build_stats_page(self))]))
+            self.page.views.append(ft.View([self.shell("Статистика", build_stats_page(self))], route=route))
         else:
-            self.page.views.append(ft.View("/", [build_login_page(self)]))
+            self.page.views.append(ft.View([build_login_page(self)], route="/"))
         self.page.update()
 
     def view_pop(self, _: ft.ViewPopEvent) -> None:
+        if len(self.page.views) <= 1:
+            self.navigate("/")
+            return
         self.page.views.pop()
-        self.page.go(self.page.views[-1].route)
+        self.navigate(self.page.views[-1].route)
 
     def shell(self, title: str, content: ft.Control) -> ft.Control:
         menu_items = [
@@ -96,9 +102,9 @@ class RationApp:
                             *[
                                 ft.TextButton(
                                     label,
-                                    on_click=lambda _, target=target: self.page.go(target),
+                                    on_click=lambda _, target=target: self.navigate(target),
                                     style=ft.ButtonStyle(
-                                        alignment=ft.alignment.center_left,
+                                        alignment=ft.Alignment.CENTER_LEFT,
                                         bgcolor=(
                                             ft.Colors.GREEN_50
                                             if self.page.route == target
@@ -137,5 +143,5 @@ def _main(page: ft.Page) -> None:
 
 
 def run() -> None:
-    ft.app(target=_main)
+    ft.run(_main, no_cdn=True)
 

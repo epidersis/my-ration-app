@@ -11,7 +11,7 @@ def empty_state(text: str) -> ft.Container:
     return ft.Container(
         content=ft.Text(text, color=ft.Colors.GREY_700),
         padding=20,
-        alignment=ft.alignment.center,
+        alignment=ft.Alignment.CENTER,
     )
 
 

@@ -55,11 +55,18 @@ class CatalogService:
         prepared: list[dict[str, float | int]] = []
         total = 0.0
         for raw_item in raw_items:
-            ingredient_id = int(raw_item["ingredient_id"])
+            try:
+                ingredient_id = int(raw_item["ingredient_id"])
+            except (KeyError, TypeError, ValueError) as exc:
+                raise ValueError("Выберите ингредиент") from exc
             ingredient = self.ingredients.get(ingredient_id, user_id)
             if ingredient is None:
                 raise ValueError("Выбранный ингредиент не найден")
-            weight = parse_positive_float(raw_item["weight_grams"], "Вес должен быть больше 0")
+            try:
+                raw_weight = raw_item["weight_grams"]
+            except KeyError as exc:
+                raise ValueError("Вес должен быть больше 0") from exc
+            weight = parse_positive_float(raw_weight, "Вес должен быть больше 0")
             calculated = calories_for_ingredient(ingredient.calories_per_100g, weight)
             total += calculated
             prepared.append(

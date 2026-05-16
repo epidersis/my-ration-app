@@ -23,11 +23,11 @@ def build_register_page(app) -> ft.Control:
             app.page.update()
             return
         app.show_message("Регистрация выполнена. Теперь войдите в приложение.")
-        app.page.go("/")
+        app.navigate("/")
 
     return ft.Container(
         expand=True,
-        alignment=ft.alignment.center,
+        alignment=ft.Alignment.CENTER,
         content=ft.Container(
             width=460,
             bgcolor=ft.Colors.WHITE,
@@ -43,7 +43,7 @@ def build_register_page(app) -> ft.Control:
                     password_repeat,
                     error,
                     ft.ElevatedButton("Зарегистрироваться", on_click=submit, width=460),
-                    ft.TextButton("Назад ко входу", on_click=lambda _: app.page.go("/")),
+                    ft.TextButton("Назад ко входу", on_click=lambda _: app.navigate("/")),
                 ],
                 spacing=14,
                 tight=True,

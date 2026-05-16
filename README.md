@@ -32,7 +32,7 @@ source .venv/bin/activate
 
 ```bash
 pip install -r requirements.txt
-flet run app/main.py
+flet run -m app.main
 ```
 
 SQLite-база по умолчанию создаётся в `data/my_ration.sqlite3`. Путь можно переопределить переменной окружения `APP_DB_PATH`.

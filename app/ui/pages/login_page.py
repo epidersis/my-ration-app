@@ -15,11 +15,11 @@ def build_login_page(app) -> ft.Control:
             app.page.update()
             return
         app.current_user = user
-        app.page.go("/dashboard")
+        app.navigate("/dashboard")
 
     return ft.Container(
         expand=True,
-        alignment=ft.alignment.center,
+        alignment=ft.Alignment.CENTER,
         content=ft.Container(
             width=420,
             bgcolor=ft.Colors.WHITE,
@@ -36,7 +36,7 @@ def build_login_page(app) -> ft.Control:
                     ft.ElevatedButton("Войти", on_click=submit, width=420),
                     ft.TextButton(
                         "Зарегистрироваться",
-                        on_click=lambda _: app.page.go("/register"),
+                        on_click=lambda _: app.navigate("/register"),
                     ),
                 ],
                 spacing=14,
